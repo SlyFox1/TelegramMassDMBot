@@ -1,9 +1,8 @@
-import requests
+import requests, os, random
 from telethon.sync import TelegramClient
 from telethon.errors.rpcerrorlist import PhoneNumberBannedError
 import pickle, pyfiglet
 from colorama import init, Fore
-import os, random
 from time import sleep
 
 init()
@@ -18,9 +17,9 @@ colors = [lg, r, w, cy, ye]
 
 def banner():
     f = pyfiglet.Figlet(font='slant')
-    banner = f.renderText('Telegram')
+    banner = f.renderText('Vector')
     print(f'{random.choice(colors)}{banner}{n}')
-    print(r+'  Version: 1 | Author: Shabani'+n+'\n')
+    print(r+'  Version: 0.1'+n+'\n')
 
 
 def clr():
