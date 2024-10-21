@@ -3,26 +3,27 @@ from telethon.tl.functions.messages import GetDialogsRequest
 from telethon.tl.types import InputPeerEmpty, InputPeerChannel
 from telethon.errors.rpcerrorlist import PeerFloodError, UserPrivacyRestrictedError, PhoneNumberBannedError
 from telethon.tl.functions.channels import InviteToChannelRequest
-import sys
 from telethon.tl.functions.channels import JoinChannelRequest
-import csv
-import time
-import keyboard
-import random
-import pyfiglet
 from colorama import init, Fore
-import os
-import pickle
-import traceback
-'''
+import sys,csv,time,random,pyfiglet,os,pickle,traceback,subprocess
+
+# Conditional import for keyboard and beepy
+if os.name == 'nt':
+    try:
+        import keyboard
+    except ImportError:
+        os.system('pip install keyboard')
+        import keyboard
+
 try:
     import beepy
 except ImportError:
     if os.name == 'nt':
         os.system('pip install beepy')
+        import beepy
     else:
         pass
-'''
+
 init()
 
 r = Fore.RED
@@ -57,7 +58,7 @@ f.close()
 clr()
 banner()
 users = []
-input_file = 'members\\members.csv'
+input_file = 'members/members.csv'
 with open(input_file, 'r', encoding='UTF-8') as f:
     reader = csv.reader(f, delimiter=',', lineterminator='\n')
     next(reader, None)
@@ -81,7 +82,10 @@ for a in accounts:
     iD = int(a[0])
     Hash = str(a[1])
     phn = str(a[2])
-    clnt = TelegramClient(f'sessions\\{phn}', iD, Hash)
+    if os.name == 'nt':
+        clnt = TelegramClient(f'sessions\\{phn}', iD, Hash)
+    else:
+        clnt = TelegramClient(f'sessions/{phn}', iD, Hash)
     clnt.connect()
     banned = []
     if not clnt.is_user_authorized():
@@ -116,7 +120,10 @@ time.sleep(2)
 for i in accounts[:a]:
     done = []
     to_use.append(i)
-    file = 'members\\members' + str(accounts.index(i)) + '.csv'
+    if os.name == 'nt':
+        file = 'members\\members' + str(accounts.index(i)) + '.csv'
+    else:
+        file = 'members/members' + str(accounts.index(i)) + '.csv'
     with open(file, 'w', encoding='UTF-8') as f:
         writer = csv.writer(f, delimiter=',', lineterminator='\n')
         writer.writerow(['username', 'user id', 'access hash', 'group', 'group id'])
@@ -131,7 +138,11 @@ for i in accounts[:a]:
     if len(users) == 0:
         break
 if not len(users) == 0:
-    with open('members\\members.csv', 'w', encoding='UTF-8') as f:
+    if os.name == 'nt':
+        membersFile = 'members\\members.csv'
+    else:
+        membersFile = 'members/members.csv'
+    with open(membersFile, 'w', encoding='UTF-8') as f:
         writer = csv.writer(f, delimiter=',', lineterminator='\n')
         writer.writerow(['username', 'user id', 'access hash', 'group', 'group id'])
         for user in users:
@@ -155,10 +166,6 @@ with open('resume.txt', 'w') as f:
 print(f'{info}{lg} CSV file distribution complete{rs}')
 time.sleep(2)
 clr()
-if not os.name == 'nt':
-    print(f'{error}{r} Automation supports only Windows systems')
-    sys.exit()
-
 program = 'usradder.py'
 
 o = str(len(to_use))
@@ -173,10 +180,21 @@ for account in to_use:
     api_id = str(account[0])
     api_hash = str(account[1])
     phone = str(account[2])
-    file = 'members\\members' + str(to_use.index(account)) + '.csv'
-    os.system('start cmd')
-    time.sleep(1.5)
-    keyboard.write('python' + ' ' + program + ' ' + api_id + ' ' + api_hash + ' ' + phone + ' ' + file + ' ' + str(scraped_grp))
-    keyboard.press_and_release('Enter')
+    file = f'members/members{to_use.index(account)}.csv'
+    command = f'python {program} {api_id} {api_hash} {phone} {file} {scraped_grp}'
+    
+    if os.name == 'nt':
+        subprocess.Popen(['start', 'cmd', '/k', command], shell=True)
+    else:
+        # Try to use gnome-terminal, xterm, or just run in the background
+        try:
+            subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', command])
+        except FileNotFoundError:
+            try:
+                subprocess.Popen(['xterm', '-e', command])
+            except FileNotFoundError:
+                subprocess.Popen(command.split(), start_new_session=True)
+    
     print(f'{plus}{lg} Launched from {phone}')
+    time.sleep(1.5)
 #beepy.beep(sound='ping')

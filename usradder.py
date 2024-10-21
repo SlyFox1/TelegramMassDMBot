@@ -32,7 +32,10 @@ def banner():
     print(f'{info}{g} Author: github.com/denizshabani{rs}\n')
 
 def clscreen():
-    os.system('cls')
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
 
 clscreen()
 banner()
@@ -69,7 +72,10 @@ with open(file, encoding='UTF-8') as f:
         user['group'] = row[3]
         user['group_id'] = row[4]
         users.append(user)
-client = TelegramClient(f'sessions\\{phone}', api_id, api_hash)
+if os.name == 'nt':
+    client = TelegramClient(f'sessions\\{phone}', api_id, api_hash)
+else:
+    client = TelegramClient(f'sessions/{phone}', api_id, api_hash)
 client.connect()
 time.sleep(1.5)
 
@@ -93,7 +99,10 @@ for user in users:
         time.sleep(20)
     except PeerFloodError:
         #time.sleep()
-        os.system(f'del {file}')
+        if os.name == 'nt':
+            os.system(f'del {file}')
+        else:
+            os.system(f'rm {file}')
         sys.exit(f'\n{error}{r} Aborted. Peer Flood Error{rs}')
     except UserPrivacyRestrictedError:
         print(f'{error}{r} User Privacy Restriction{rs}')

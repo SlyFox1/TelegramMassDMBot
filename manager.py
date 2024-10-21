@@ -60,7 +60,10 @@ while True:
                     clr()
                     print(lg + '[*] Logging in from new accounts...\n')
                     for added in newly_added:
-                        c = TelegramClient(f'sessions/{added[2]}', added[0], added[1])
+                        if os.name == 'nt':
+                            c = TelegramClient(f'sessions\\{added[2]}', added[0], added[1])
+                        else:
+                            c = TelegramClient(f'sessions/{added[2]}', added[0], added[1])
                         try:
                             c.start()
                             print(f'n\n{lg}[+] Logged in - {added[2]}')
@@ -90,7 +93,10 @@ while True:
                 api_id = int(account[0])
                 api_hash = str(account[1])
                 phone = str(account[2])
-                client = TelegramClient(f'sessions\\{phone}', api_id, api_hash)
+                if os.name == 'nt':
+                    client = TelegramClient(f'sessions\\{phone}', api_id, api_hash)
+                else:
+                    client = TelegramClient(f'sessions/{phone}', api_id, api_hash)
                 client.connect()
                 if not client.is_user_authorized():
                     try:
